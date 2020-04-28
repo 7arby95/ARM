@@ -218,14 +218,71 @@ typedef struct{
 	uint32_t GPIODMACTL  		;
 }PORT_RegType;
 
-#define  PORT_A     ((volatile PORT_RegType*)GPIOA_APB_BASE_ADDRESS)
-#define  PORT_B     ((volatile PORT_RegType*)GPIOB_APB_BASE_ADDRESS)
-#define  PORT_C     ((volatile PORT_RegType*)GPIOC_APB_BASE_ADDRESS)
-#define  PORT_D     ((volatile PORT_RegType*)GPIOD_APB_BASE_ADDRESS)
-#define  PORT_E     ((volatile PORT_RegType*)GPIOE_APB_BASE_ADDRESS)
-#define  PORT_F     ((volatile PORT_RegType*)GPIOF_APB_BASE_ADDRESS)
+#define	PORT_A		((volatile PORT_RegType*)GPIOA_APB_BASE_ADDRESS)
+#define	PORT_B		((volatile PORT_RegType*)GPIOB_APB_BASE_ADDRESS)
+#define	PORT_C		((volatile PORT_RegType*)GPIOC_APB_BASE_ADDRESS)
+#define	PORT_D		((volatile PORT_RegType*)GPIOD_APB_BASE_ADDRESS)
+#define	PORT_E		((volatile PORT_RegType*)GPIOE_APB_BASE_ADDRESS)
+#define	PORT_F		((volatile PORT_RegType*)GPIOF_APB_BASE_ADDRESS)
 
 typedef PORT_RegType* PointerToPortRegisters;
+
+
+/* ADC Registers */
+/* Base Addresses of the ADC Instances */
+#define ADC0_BASE_ADDRESS		0x40038000
+#define ADC1_BASE_ADDRESS		0x40039000
+
+typedef struct{
+	uint32_t ADCACTSS			;
+	uint32_t ADCRIS				;
+	uint32_t ADCIM				;
+	uint32_t ADCISC				;
+	uint32_t ADCOSTAT			;
+	uint32_t ADCEMUX			;
+	uint32_t ADCUSTAT			;
+	uint32_t ADCTSSEL			;
+	uint32_t ADCSSPRI			;
+	uint32_t ADCSPC				;
+	uint32_t ADCPSSI			;
+	uint32_t Reserved0[0x01]	;
+	uint32_t ADCSAC				;
+	uint32_t ADCDCISC			;
+	uint32_t ADCCTL				;
+	uint32_t Reserved1[0x01]	;
+	uint32_t ADCSSMUX0			;
+	uint32_t ADCSSCTL0			;
+	uint32_t ADCSSFIFO0			;
+	uint32_t ADCSSFSTAT0		;
+	uint32_t ADCSSOP0			;
+	uint32_t ADCSSDC0			;
+	uint32_t Reserved2[0x02]	;
+	uint32_t ADCSSMUX1			;
+	uint32_t ADCSSCTL1			;
+	uint32_t ADCSSFIFO1			;
+	uint32_t ADCSSFSTAT1		;
+	uint32_t ADCSSOP1			;
+	uint32_t ADCSSDC1			;
+	uint32_t Reserved3[0x02]	;
+	uint32_t ADCSSMUX2			;
+	uint32_t ADCSSCTL2			;
+	uint32_t ADCSSFIFO2			;
+	uint32_t ADCSSFSTAT2		;
+	uint32_t ADCSSOP2			;
+	uint32_t ADCSSDC2			;
+	uint32_t Reserved4[0x02]	;
+	uint32_t ADCSSMUX3			;
+	uint32_t ADCSSCTL3			;
+	uint32_t ADCSSFIFO3			;
+	uint32_t ADCSSFSTAT3		;
+	uint32_t ADCSSOP3			;
+	uint32_t ADCSSDC3			;
+}ADC_RegType;
+
+#define	ADC_0		((volatile ADC_RegType*)ADC0_BASE_ADDRESS)
+#define	ADC_1		((volatile ADC_RegType*)ADC1_BASE_ADDRESS)
+
+typedef	ADC_RegType* PointerToADCRegisters;
 
 
 #endif /* TM4C123GH6PM_REGISTERS_H_ */
