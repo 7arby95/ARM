@@ -40,6 +40,10 @@ typedef uint8_t PortDriver_Channel_AttachmentType;
 #define PortDriver_Channel_Attachment_PullUpRes 		2
 #define PortDriver_Channel_Attachment_PullDownRes		3
 
+typedef uint8_t PortDriver_Channel_ADFunctionType;
+#define PortDriver_Channel_ADFunction_Digital			0
+#define PortDriver_Channel_ADFunction_Analog			1
+
 typedef uint8_t PortDriver_Channel_FunctionType;
 #define PortDriver_Channel_Function_X_DIO				0
 
@@ -250,6 +254,7 @@ typedef struct{
 	PortDriver_Channel_AttachmentType	PortDriver_Channel_Attachment;
 	PortDriver_Channel_FunctionType		PortDriver_Channel_Function;
 	PortDriver_Channel_ExtiType			PortDriver_Channel_Exti;
+	PortDriver_Channel_ADFunctionType	PortDriver_Channel_ADFunction;
 }PortDriver_CfgType;
 
 

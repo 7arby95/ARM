@@ -27,6 +27,8 @@
 
 #define GPIOLOCK_KEY				0x4C4F434B
 
+#define NUMBER_OF_PORT_INSTANCES	6
+
 /********************************************************************************
  * 							 	 Global Variables								*
  ********************************************************************************/
@@ -35,7 +37,7 @@
 	An array of pointers to structures, each structure contains the addresses of each GPIO instance, this array is
 	used to make the register accessing easier
 */
-PointerToPortRegisters ArrayOfPortRegisters[6] = {
+PointerToPortRegisters ArrayOfPortRegisters[NUMBER_OF_PORT_INSTANCES] = {
 	(PORT_RegType*)PORT_A,
 	(PORT_RegType*)PORT_B,
 	(PORT_RegType*)PORT_C,
@@ -86,7 +88,8 @@ void Port_Init(void)
 		ArrayOfPortRegisters[PortNum]->GPIOCR |= (1 << au8_ChannelOffset);
 		
 		/* Selection of whether the function needed is alternate function or not */
-		ArrayOfPortRegisters[PortNum]->GPIOAFSEL |= (((PortDriver_CfgArr[au8_Counter].PortDriver_Channel_Function)? 1 : 0) << au8_ChannelOffset);
+		ArrayOfPortRegisters[PortNum]->GPIOAFSEL |= (((PortDriver_CfgArr[au8_Counter].PortDriver_Channel_Function ||	\
+						PortDriver_CfgArr[au8_Counter].PortDriver_Channel_ADFunction)? 1 : 0) << au8_ChannelOffset);
 		/* In case of an alternate function, the right value is then written to the GPIOPCTL register */
 		ArrayOfPortRegisters[PortNum]->GPIOPCTL |= (PortDriver_CfgArr[au8_Counter].PortDriver_Channel_Function << (au8_ChannelOffset * 4));
 		
@@ -99,8 +102,21 @@ void Port_Init(void)
 		/* Selection whether the slew rate option is activated or not */
 		ArrayOfPortRegisters[PortNum]->GPIOSLR |= ((PortDriver_CfgArr[au8_Counter].PortDriver_Channel_SlewRate) << au8_ChannelOffset);
 		
-		/* Selection of the digital signal option */
-		ArrayOfPortRegisters[PortNum]->GPIODEN |= (1 << au8_ChannelOffset);
+		/* Selection whether the signal is digital or analog */
+		switch(PortDriver_CfgArr[au8_Counter].PortDriver_Channel_ADFunction)
+		{
+			case PortDriver_Channel_ADFunction_Digital:
+				ArrayOfPortRegisters[PortNum]->GPIODEN |= (1 << au8_ChannelOffset);
+				ArrayOfPortRegisters[PortNum]->GPIOAMSEL &= ~(1 << au8_ChannelOffset);
+				break;
+			case PortDriver_Channel_ADFunction_Analog:
+				ArrayOfPortRegisters[PortNum]->GPIODEN &= ~(1 << au8_ChannelOffset);
+				ArrayOfPortRegisters[PortNum]->GPIOAMSEL |= (1 << au8_ChannelOffset);
+				break;
+			default:
+				// Handle appropriately..
+				break;
+		}
 		
 		/* In case the external interrupt option is required.. */
 		if(PortDriver_CfgArr[au8_Counter].PortDriver_Channel_Exti != PortDriver_Channel_Exti_Disable)
