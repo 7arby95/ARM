@@ -178,7 +178,7 @@ SYSDIV field determines the system frequency for the microcontroller.
 /*
 4. Wait for the PLL to lock by polling the PLLLRIS bit in the Raw Interrupt Status (RIS) register.
 */
-//	while(READ_BIT(SYSCTL_RIS_R, SYSCTL_RIS_PLLLRIS_B6) == 0);
+	while(READ_BIT(SYSCTL_RIS_R, SYSCTL_RIS_PLLLRIS_B6) == 0);
 	
 /*
 5. Enable use of the PLL by clearing the BYPASS bit in RCC/RCC2.

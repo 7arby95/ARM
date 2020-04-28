@@ -22,7 +22,7 @@
  ********************************************************************************/
 
 #define REQUIRED_COMBINATION								XXY
-#define NUM_OF_ACTIVATED_INTERRUPTS							4
+#define NUM_OF_ACTIVATED_INTERRUPTS							5
 
 
 /********************************************************************************
