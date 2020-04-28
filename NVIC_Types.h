@@ -1,13 +1,9 @@
 /*
- * NVIC_Types.h
+ * NVIC_Types.c
  *
  *  Created on: Apr 8, 2020
  *      Author: Youssef Harby
  */
-
-
-#ifndef NVIC_TYPES_H_
-#define NVIC_TYPES_H_
 
 
 /********************************************************************************
@@ -120,5 +116,3 @@ typedef struct
 	Group_PriorityType Group_Priority;
 	SubGroup_PriorityType	SubGroup_Priority;
 }NVIC_CfgType;
-
-#endif /* NVIC_TYPES_H_ */

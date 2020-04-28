@@ -22,5 +22,6 @@ NVIC_CfgType NVIC_CfgArr[NUM_OF_ACTIVATED_INTERRUPTS] =
 	{GPIOA_IRQn,			2,						0					},
 	{GPIOB_IRQn,			1,						1					},
 	{GPIOF_IRQn,			2,						1					},
-	{UART0_IRQn,			0,						1					}
+	{UART0_IRQn,			0,						1					},
+	{ADC0SS3_IRQn,			0,						1					},
 };
