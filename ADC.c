@@ -171,7 +171,54 @@ ADC_ERROR_STATUS ADC_Init(void)
 	enabled. Disabling the sequencer during programming prevents erroneous execution if a trigger
 	event were to occur during the configuration process. 
 */
-	if(ADC_ArrayOfInitializationFlags[ADC_Cfg.ADC_InstanceNum] == ADC_NOT_INITIALIZED)
+	/*
+		This switch-case statement is to determine the number of times the loop will go in order to 
+		fill the whole register with the required channels.
+	*/
+	switch(ADC_Cfg.ADC_SampleSequencer)
+	{
+	case ADC_SampleSequencer_SS0:
+		/* EIGHT because this sequencer can sample 8 channels. */
+		au8_Max = EIGHT;
+		break;
+	case ADC_SampleSequencer_SS1:
+	case ADC_SampleSequencer_SS2:
+		/* FOUR because this sequencer can sample 4 channels. */
+		au8_Max = FOUR;
+		break;
+	case ADC_SampleSequencer_SS3:
+		/* ONE because this sequencer can sample only one channel. */
+		au8_Max = ONE;
+		break;
+	default:
+		break;
+	}
+	
+	for(au8_Counter = ZERO ; au8_Counter < au8_Max ; au8_Counter++)
+	{
+		if(ADC_Cfg.ADC_Input[au8_Counter] > ADC_Input_AIN11_B5 || \
+		(ADC_Cfg.ADC_SSCtl[au8_Counter].ADC_EndOfSequence != ADC_EndOfSequence_SamplingContinues && \
+		ADC_Cfg.ADC_SSCtl[au8_Counter].ADC_EndOfSequence != ADC_EndOfSequence_EndOfSequence) || \
+		(ADC_Cfg.ADC_SSCtl[au8_Counter].ADC_Input != ADC_Input_Channels && \
+		ADC_Cfg.ADC_SSCtl[au8_Counter].ADC_Input != ADC_Input_InternalTempSensor) || \
+		(ADC_Cfg.ADC_SSCtl[au8_Counter].ADC_Interrupt != ADC_Interrupt_Disable && \
+		ADC_Cfg.ADC_SSCtl[au8_Counter].ADC_Interrupt != ADC_Interrupt_Enable) || \
+		ADC_Cfg.ADC_SSCtl[au8_Counter].ADC_SamplingMode > ADC_SamplingMode_DifferentialSampling)
+		{
+			as8_Ret = ADC_E_INVALID_PARAMETERS;
+		}
+	}
+	
+	if(ADC_ArrayOfInitializationFlags[ADC_Cfg.ADC_InstanceNum] == ADC_INITIALIZED)
+	{
+		as8_Ret = ADC_E_MULTIPLE_MODULE_INITIALIZATION;
+	}else if(ADC_Cfg.ADC_InstanceNum > ADC_InstanceNum_ADC1 || \
+			(ADC_Cfg.ADC_SampleSequencer > ADC_SampleSequencer_SS3) || \
+			(ADC_Cfg.ADC_TriggerSource > ADC_TriggerSource_ContinuousSampling) || \
+			(ADC_Cfg.ADC_TriggerSource > ADC_TriggerSource_PWM_Gen3 && ADC_Cfg.ADC_TriggerSource < ADC_TriggerSource_ContinuousSampling))
+	{
+		as8_Ret = ADC_E_INVALID_PARAMETERS;
+	}else if(as8_Ret == ADC_E_OK)
 	{
 		CLEAR_BIT(ADC_ArrayOfRegisters[ADC_Cfg.ADC_InstanceNum]->ADCACTSS, ADC_Cfg.ADC_SampleSequencer);
 
@@ -192,29 +239,6 @@ register reset selects PWM module 0 for all generators.
 ADCSSMUXn register.
 (Full configurations regarding this matter are not yet available)
 */
-		/*
-			This switch-case statement is to determine the number of times the loop will go in order to 
-			fill the whole register with the required channels.
-		*/
-		switch(ADC_Cfg.ADC_SampleSequencer)
-		{
-		case ADC_SampleSequencer_SS0:
-			/* EIGHT because this sequencer can sample 8 channels. */
-			au8_Max = EIGHT;
-			break;
-		case ADC_SampleSequencer_SS1:
-		case ADC_SampleSequencer_SS2:
-			/* FOUR because this sequencer can sample 4 channels. */
-			au8_Max = FOUR;
-			break;
-		case ADC_SampleSequencer_SS3:
-			/* ONE because this sequencer can sample only one channel. */
-			au8_Max = ONE;
-			break;
-		default:
-			break;
-		}
-		
 		/* A for loop used to loop the contents of the configuration structure arrays and fill
 		   the registers with the proper values. */
 		for(au8_Counter = ZERO ; au8_Counter < au8_Max ; au8_Counter++)
@@ -271,9 +295,6 @@ register.
 		
 		/* Change the initialization status into initialized status in order to avoid multiple initializations. */
 		ADC_ArrayOfInitializationFlags[ADC_Cfg.ADC_InstanceNum] = ADC_INITIALIZED;
-	}else
-	{
-		as8_Ret = ADC_E_MULTIPLE_MODULE_INITIALIZATION;
 	}
 	
 	return as8_Ret;
