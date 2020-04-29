@@ -22,11 +22,11 @@
  * 								API's Declarations								*
  ********************************************************************************/
 
-void ADC_Init(void);
+extern ADC_ERROR_STATUS ADC_Init(void);
 
-void ADC_StartConversion(void);
+extern ADC_ERROR_STATUS ADC_StartConversion(void);
 
-void ADC_Read(uint16_t* Result);
+extern ADC_ERROR_STATUS ADC_Read(uint16_t* Result);
 
 
 #endif /* ADC_H_ */

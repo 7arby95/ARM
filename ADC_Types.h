@@ -88,5 +88,13 @@ typedef struct{
 	void_FunPtrType_void		CallBckFunPtr;
 }ADC_CfgType;
 
+typedef sint8_t ADC_ERROR_STATUS;
+#define ADC_E_OK									(0)
+#define ADC_E_NOT_INITIALIZED						(-1)
+#define ADC_E_NULL_POINTER							(-2)
+#define ADC_E_READ_WITHOUT_STARTING_CONVERSION		(-3)
+#define ADC_E_MULTIPLE_STARTING_CONVERSION			(-4)
+#define ADC_E_MULTIPLE_MODULE_INITIALIZATION		(-5)
+
 
 #endif /* ADC_TYPES_H_ */
