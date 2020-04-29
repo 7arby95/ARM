@@ -18,16 +18,16 @@ typedef unsigned char uint8_t;
 typedef unsigned int uint16_t;
 typedef unsigned long int uint32_t;
 typedef unsigned long long uint64_t;
-typedef char sint8_t;
+typedef signed char sint8_t;
 typedef int sint16_t;
 typedef long int sint32_t;
 typedef long long sint64_t;
 typedef volatile uint8_t* const reg_type8_t;
 typedef volatile uint16_t* const reg_type16_t;
 typedef sint16_t ERROR_STATUS;
-typedef		void (*FunPtr)(void);
+typedef		void (*void_FunPtrType_void)(void);
 typedef uint32_t* RegPtrType;
-
+typedef		void (*void_FunPtrType_void_ptr_void)(void(*)(void));
 
 /************************************************************************/
 /*				 		defining boolean values                         */

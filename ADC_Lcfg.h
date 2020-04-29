@@ -1,34 +1,27 @@
 /*
- * Port_lcfg.h
+ * ADC_Lcfg.h
  *
- *  Created on: Apr 14, 2020
+ *  Created on: Apr 25, 2020
  *      Author: Youssef Harby
  */
 
 
-#ifndef PORT_LCFG_H_
-#define PORT_LCFG_H_
+#ifndef ADC_LCFG_H_
+#define ADC_LCFG_H_
 
 
 /********************************************************************************
  * 								  Included Files								*
  ********************************************************************************/
 
-#include "Port_Types.h"
-
-
-/********************************************************************************
- * 								Preprocessor Macros								*
- ********************************************************************************/
-
-#define NUM_OF_ACTIVATED_CHANNELS		3
+#include "ADC_Types.h"
 
 
 /********************************************************************************
  * 								 External Variables								*
  ********************************************************************************/
 
-extern PortDriver_CfgType PortDriver_CfgArr[];
+extern ADC_CfgType ADC_Cfg;
 
 
-#endif /* PORT_LCFG_H_ */
+#endif /* ADC_LCFG_H_ */
