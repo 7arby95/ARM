@@ -14,6 +14,7 @@
 #include "NVIC.h"
 #include "Port.h"
 #include "DIO.h"
+#include "ADC.h"
 
 
 /********************************************************************************
@@ -37,14 +38,18 @@
 
 int main(void)
 {
+	uint16_t Result;
+
 	SysCtl_Init();
 	NVIC_Init();
 	Port_Init();
 	
-	
+	ADC_Init();
 
 	while(1)
 	{
-
+		ADC_StartConversion();
+		ADC_Read(&Result);
+		PORT_A->GPIOAFSEL = Result;
 	}
 }

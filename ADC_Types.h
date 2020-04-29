@@ -56,7 +56,9 @@ typedef uint8_t ADC_InputType;
 #define ADC_Input_AIN9_E4				0x09
 #define ADC_Input_AIN10_B4				0x0A
 #define ADC_Input_AIN11_B5				0x0B
-#define ADC_Input_InternalTempSensor	0xFF
+
+#define ADC_Input_Channels				0x00
+#define ADC_Input_InternalTempSensor	0x08
 
 typedef uint8_t ADC_SamplingModeType;
 #define ADC_SamplingMode_SingleEndedSampling	0x00
@@ -64,20 +66,26 @@ typedef uint8_t ADC_SamplingModeType;
 
 typedef uint8_t ADC_EndOfSequenceType;
 #define ADC_EndOfSequence_SamplingContinues		0x00
-#define ADC_EndOfSequence_EndOfSequence			0x01
+#define ADC_EndOfSequence_EndOfSequence			0x02
 
 typedef uint8_t ADC_InterruptType;
 #define ADC_Interrupt_Disable		0x00
-#define ADC_Interrupt_Enable		0x01
+#define ADC_Interrupt_Enable		0x04
+
+typedef struct{
+	ADC_SamplingModeType		ADC_SamplingMode;
+	ADC_EndOfSequenceType		ADC_EndOfSequence;
+	ADC_InterruptType			ADC_Interrupt;
+	ADC_InputType				ADC_Input;
+}ADC_SSCtlType;
 
 typedef struct{
 	ADC_InstanceNumType			ADC_InstanceNum;
 	ADC_SampleSequencerType		ADC_SampleSequencer;
 	ADC_TriggerSourceType		ADC_TriggerSource;
 	ADC_InputType				ADC_Input[8];
-	ADC_SamplingModeType		ADC_SamplingMode;
-	ADC_EndOfSequenceType		ADC_EndOfSequence;
-	ADC_InterruptType			ADC_Interrupt;
+	ADC_SSCtlType				ADC_SSCtl[8];
+	void_FunPtrType_void		CallBckFunPtr;
 }ADC_CfgType;
 
 

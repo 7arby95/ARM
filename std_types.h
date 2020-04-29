@@ -25,9 +25,9 @@ typedef long long sint64_t;
 typedef volatile uint8_t* const reg_type8_t;
 typedef volatile uint16_t* const reg_type16_t;
 typedef sint16_t ERROR_STATUS;
-typedef		void (*FunPtr)(void);
+typedef		void (*void_FunPtrType_void)(void);
 typedef uint32_t* RegPtrType;
-
+typedef		void (*void_FunPtrType_void_ptr_void)(void(*)(void));
 
 /************************************************************************/
 /*				 		defining boolean values                         */

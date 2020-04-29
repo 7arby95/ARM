@@ -22,6 +22,11 @@
  * 								API's Declarations								*
  ********************************************************************************/
 
+void ADC_Init(void);
+
+void ADC_StartConversion(void);
+
+void ADC_Read(uint16_t* Result);
 
 
 #endif /* ADC_H_ */
