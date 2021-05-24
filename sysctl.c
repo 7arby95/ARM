@@ -1,0 +1,210 @@
+/*
+ * SysCtl.c
+ *
+ *  Created on: Apr 6, 2020
+ *      Author: Youssef Harby
+ */
+
+
+/********************************************************************************
+ * 								  Included Files								*
+ ********************************************************************************/
+
+#include "tm4c123gh6pm_registers.h"
+#include "SysCtl.h"
+#include "Privilege.h"
+
+
+/********************************************************************************
+ * 								 API's Definitions								*
+ ********************************************************************************/
+
+void SysCtl_Init(void)
+{	
+/**************** Part 1: Setting the required System Frequency *****************/
+
+	/* Switch first to privileged mode to be able to use the registers */
+	System_SwitchToPrivileged();
+	
+/*
+1. Bypass the PLL and system clock divider by setting the BYPASS bit and clearing the USESYS
+bit in the RCC register, thereby configuring the microcontroller to run off a "raw" clock source
+and allowing for the new PLL configuration to be validated before switching the system clock
+to the PLL.
+*/
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_BYPASS_B11) = 1;
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_USESYSDIV_B22) = 0;
+
+/*
+2. Select the crystal value (XTAL) and oscillator source (OSCSRC), and clear the PWRDN bit in
+RCC/RCC2. Setting the XTAL field automatically pulls valid PLL configuration data for the
+appropriate crystal, and clearing the PWRDN bit powers and enables the PLL and its output.
+*/
+	/* Enable Main Oscillator */
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_MOSCDIS_B0) = 0;
+
+	/* Set XTAL bits to make the crystal attached to the main oscillator provide 16 MHz frequency */
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_XTAL_B6) = 1;
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_XTAL_B7) = 0;
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_XTAL_B8) = 1;
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_XTAL_B9) = 0;
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_XTAL_B10) = 1;
+
+	/* Modify bits of OSCSRC to select the main oscillator as the frequency provider */
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_OSCSRC_B4) = 0;
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_OSCSRC_B5) = 0;
+
+	/* Clear the PWRDN bit to power up PLL */
+	WRITE_BIT(SYSCTL_RCC_R, SYSCTL_RCC_PWRDN_B13) = 0;
+
+	/* Set the USERCC2 bit to be able to write in register RCC2 and override register RCC */
+	WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_USERCC2_B31) = 1;
+	
+	/* Set the DIV400 bit to always use PLL predivided frequency 400 MHz to be able to getwider range
+	of frequencies */
+	WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_DIV400_B30) = 1;
+
+/*
+3. Select the desired system divider (SYSDIV) in RCC/RCC2 and set the USESYS bit in RCC. The
+SYSDIV field determines the system frequency for the microcontroller.
+*/
+	/* Now, we switch the required frequency to figure out which bits to set or clear */
+	switch(SYSCTL_REQUIRED_FREQUENCY)
+	{
+	case SYSCTL_FREQ_8:
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B23) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B24) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B25) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B26) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B27) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B28) = 0;
+
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2LSB_B22) = 1;
+		 break;
+		 
+	case SYSCTL_FREQ_12_5:
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B23) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B24) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B25) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B26) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B27) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B28) = 0;
+
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2LSB_B22) = 1;
+		 break;
+		 
+	case SYSCTL_FREQ_16:
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B23) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B24) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B25) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B26) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B27) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B28) = 0;
+
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2LSB_B22) = 0;
+		 break;
+		 
+	case SYSCTL_FREQ_25:
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B23) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B24) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B25) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B26) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B27) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B28) = 0;
+
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2LSB_B22) = 1;
+		 break;
+		 
+	case SYSCTL_FREQ_33_33:
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B23) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B24) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B25) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B26) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B27) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B28) = 0;
+
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2LSB_B22) = 1;
+		 break;
+		 
+	case SYSCTL_FREQ_40:
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B23) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B24) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B25) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B26) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B27) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B28) = 0;
+
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2LSB_B22) = 1;
+		 break;
+		 
+	case SYSCTL_FREQ_50:
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B23) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B24) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B25) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B26) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B27) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B28) = 0;
+
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2LSB_B22) = 1;
+		 break;
+		 
+	case SYSCTL_FREQ_66_67:
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B23) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B24) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B25) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B26) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B27) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B28) = 0;
+
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2LSB_B22) = 1;
+		 break;
+		 
+	case SYSCTL_FREQ_80:
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B23) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B24) = 1;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B25) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B26) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B27) = 0;
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2_B28) = 0;
+
+		 WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_SYSDIV2LSB_B22) = 0;
+		 break;
+		 
+	default:
+		 /* Handle Appropriately */
+		 break;
+	}
+	
+/*
+4. Wait for the PLL to lock by polling the PLLLRIS bit in the Raw Interrupt Status (RIS) register.
+*/
+	while(READ_BIT(SYSCTL_RIS_R, SYSCTL_RIS_PLLLRIS_B6) == 0);
+	
+/*
+5. Enable use of the PLL by clearing the BYPASS bit in RCC/RCC2.
+*/
+	/* Clear the BYPASS bit to use PLL instead of internal Osc. */
+	WRITE_BIT(SYSCTL_RCC2_R, SYSCTL_RCC2_BYPASS2_B11) = 0;
+	
+/************** Part 2: Enable the clock to reach specific modules **************/
+	
+	REGISTER(SYSCTL_RCGCWD_R) = SYSCTL_WATCHDOG_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCTIMER_R) = SYSCTL_TIMER_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCGPIO_R) = SYSCTL_GPIO_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCDMA_R) = SYSCTL_UDMA_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCHIB_R) = SYSCTL_HIBERNATION_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCUART_R) = SYSCTL_UART_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCSSI_R) = SYSCTL_SSI_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCI2C_R) = SYSCTL_I2C_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCUSB_R) = SYSCTL_USB_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCCAN_R) = SYSCTL_CAN_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCADC_R) = SYSCTL_ADC_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCACMP_R) = SYSCTL_ACMP_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCPWM_R) = SYSCTL_PWM_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCQEI_R) = SYSCTL_QEI_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCEEPROM_R) = SYSCTL_EEPROM_MODULE_REGMASK;
+	REGISTER(SYSCTL_RCGCWTIMER_R) = SYSCTL_WTIMER_MODULE_REGMASK;
+
+	/* Switch back to unprivileged mode */
+	System_SwitchToPrivileged();
+}
